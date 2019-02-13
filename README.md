@@ -9,6 +9,6 @@ if the given ratio should be applied in one or two axis.
 (This means that in the first case, the ratio 4:7 - a standing "image-profile", program will only stipulate that images thinner
 than that be padded, but in the second case - both axis - pictures being wider than 7:4 will also be deemed excessive)
 
-Anyway, if you got ways too make the code look better, or increase speed, you can "connect" (or what it's called").
+Anyway, if you got ways too make the code look better, or increase speed, you can "connect" (or what it's called).
 
 The need for this program came with the use of a webshop that used to crop tall images (visually - not in bytes).
