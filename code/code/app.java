@@ -62,6 +62,12 @@ import image.ImageWithRatio;
 import settings.Settings;
 
 
+/*
+ * Bugs:
+ * 
+ * */
+
+
 public class app extends JFrame implements ActionListener{
 	private static final long serialVersionUID = 1L;
 	

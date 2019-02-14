@@ -137,7 +137,7 @@ public class ImageHelper {
 		List<File> imgFiles = getPictureFilesFromFolder(listFromDirectory(path));
 		List<Dimension> dimensions = new ArrayList<Dimension>();
 
-		getDimensiondFromFiles(imgFiles, errorReport);
+		getDimensionsFromFiles(imgFiles, errorReport);
 
 		if (imgFiles.size() != dimensions.size()) {
 			System.out.println("Fel, olika storlek");
@@ -147,6 +147,8 @@ public class ImageHelper {
 		boolean doAgain = checkBothOrientation;
 		int doneCount = 0;
 		double ratioLimitKvot = 0;// can be switched(?)
+		
+		double imgRatio;
 
 		do {
 			System.out.println("Do again: " + doAgain + ", count: " + doneCount);
@@ -154,15 +156,17 @@ public class ImageHelper {
 			System.out.println("ratioLimit: " + ratioLimitKvot);
 			int counter = 0;
 			for (Dimension d : dimensions) {
-				if (ratioLimitKvot < 1 && getRatioFromDimension(d) < ratioLimitKvot) {
-					System.out.println("Under : " + imgFiles.get(counter).getName() + " " + getRatioFromDimension(d));
+				imgRatio = getRatioFromDimension(d);
+				
+				if (ratioLimitKvot < 1 && imgRatio < ratioLimitKvot) {
+					System.out.println("Under : " + imgFiles.get(counter).getName() + " " + imgRatio);
 					return true;
-				} else if (ratioLimitKvot > 1 && getRatioFromDimension(d) > ratioLimitKvot) {
-					System.out.println("Over : " + imgFiles.get(counter).getName() + " " + getRatioFromDimension(d));
+				} else if (ratioLimitKvot > 1 && imgRatio > ratioLimitKvot) {
+					System.out.println("Over : " + imgFiles.get(counter).getName() + " " + imgRatio);
 					return true;
 				} else {
 					System.out.println(
-							"Found normal ratio: " + getRatioFromDimension(d) + ", " + imgFiles.get(counter).getName());
+							"Found normal ratio: " + imgRatio + ", " + imgFiles.get(counter).getName());
 				}
 				counter++;
 			}
@@ -181,13 +185,13 @@ public class ImageHelper {
 		return false;
 	}
 
-	private void getDimensiondFromFiles(List<File> imgFiles, List<Dimension> dimensions, StringBuilder errorReport) {
+	private void getDimensionsFromFiles(List<File> imgFiles, List<Dimension> dimensions, StringBuilder errorReport) {
 		for (File f : imgFiles) {
 			dimensions.add(getImageDimension(f));
 		}
 	}
 
-	private List<Dimension> getDimensiondFromFiles(List<File> imgFiles, StringBuilder errorReport) {
+	private List<Dimension> getDimensionsFromFiles(List<File> imgFiles, StringBuilder errorReport) {
 		List<Dimension> dimensions = new ArrayList<Dimension>();
 		List<String> errorFiles = new ArrayList<String>();
 
@@ -216,85 +220,12 @@ public class ImageHelper {
 		return dimensions;
 	}
 
-	public static List<ImageWithRatio> listImagesAndRatiosAndIfExceedingRatioLimit(String path, double ratioX,
-			double ratioY, boolean checkBothOrientation) {// TODO: avoid reading data, just list from metadata, like
-															// listImagesAndRatiosAndIfExceedingRatioLimit_NonStatic
-		System.out.println("listImagesAndRatiosAndIfExceedingRatioLimit, limit from " + ratioX + ":" + ratioY + " = "
-				+ ratioX / ratioY);
-		List<File> imgFiles = getPictureFilesFromFolder(listFromDirectory(path));
-		List<ImageWithRatio> foundImages = new ArrayList<ImageWithRatio>();
-		boolean doAgain = checkBothOrientation;
-		int doneCount = 0;
-		double ratioLimitKvot = 0;// can be switched(?)
-
-		/**
-		 * To show what kinds of offsize was found
-		 */
-		List<ImageOrientation> foundOffSizes = new ArrayList<>();
-		List<ImageWithRatio> foundOffSized = new ArrayList<>();
-
-		/*
-		 * for (File f : imgFiles) { try { foundImages.add(new ImageWithRatio(f)); }
-		 * catch (IOException e) { // TODO Auto-generated catch block
-		 * System.out.println("Could not add to foundImage"); e.printStackTrace(); } }
-		 */
-		System.out.println("Have loaded images: " + foundImages.size());
-		do {
-			System.out.println("Do again: " + doAgain + ", count: " + doneCount);
-			if (ratioX > ratioY) {
-				// System.out.println("Looking for images with excessive width (compared to
-				// height)");
-			} else {
-				// System.out.println("Looking for images with excessive height (compared to
-				// width)");
-			}
-			ratioLimitKvot = ratioX / ratioY;
-			System.out.println("ratioLimit: " + ratioLimitKvot);
-			for (ImageWithRatio i : foundImages) {
-				/*
-				 * if(doneCount==1) { ratiox = 1 / i.getRatio();
-				 * 
-				 * } else { ratiox = i.getRatio(); }
-				 */
-
-				if (ratioLimitKvot < 1 && i.getRatio() < ratioLimitKvot) {
-					// is under
-					System.out.println(i.getName() + "\t" + i.getRatio() + "\tExceeding");
-					foundOffSizes.add(ImageOrientation.vertical);
-					foundOffSized.add(i);
-					// return true;
-				} else if (ratioLimitKvot > 1 && i.getRatio() > ratioLimitKvot) {
-					System.out.println(i.getName() + "\t" + i.getRatio() + "\tExceeding");
-					foundOffSizes.add(ImageOrientation.horizontal);
-					foundOffSized.add(i);
-					// return true;
-				} else {
-					System.out.println(i.getName() + "\t" + i.getRatio());
-				}
-			}
-			// foundImages.clear();
-
-			doneCount++;
-			// switch x:y to be able to check opposite dimension
-			double temp = ratioX;
-			ratioX = ratioY;
-			ratioY = temp;
-
-			// System.out.println("Har bytt plats...");
-
-			// System.out.println("-------------------one lap------------------- " +
-			// doneCount);
-		} while (doAgain && doneCount < 2);
-		System.out.println(foundOffSizes.size());
-		// return false;
-		return foundOffSized;
-	}
 
 	public List<File> listImagesAndRatiosAndIfExceedingRatioLimit_NonStatic(String path, double ratioX, double ratioY,
 			boolean checkBothOrientation, StringBuilder errorReport) {
 		System.out.println("listImagesAndRatiosAndIfExceedingRatioLimit_NonStatic, limit from " + ratioX + ":" + ratioY
 				+ " = " + ratioX / ratioY);
-
+		//TODO: bilder som görs bredare måste bli en pixel predare... el så
 		List<File> imgFiles = getPictureFilesFromFolder(listFromDirectory(path));
 
 		// List<ImageWithRatio> foundImages = new ArrayList<ImageWithRatio>();
@@ -310,7 +241,7 @@ public class ImageHelper {
 		List<File> foundOffSized = new ArrayList<>();
 		List<Dimension> dimensions = new ArrayList<>();
 
-		dimensions = getDimensiondFromFiles(imgFiles, errorReport);
+		dimensions = getDimensionsFromFiles(imgFiles, errorReport);
 
 		ImageOrientation foundOrient;
 
@@ -609,20 +540,21 @@ public class ImageHelper {
 		int startX = 0, startY = 0;// for placing image
 
 		Dimension d = getImageDimension(file);
+		double imageRatio = getRatioFromDimension(d);
 
 		// checking given ratio
-		if (limit < 1 && getRatioFromDimension(d) < limit) {
+		if (limit < 1 && imageRatio < limit) {
 			// standing ratio, e.g. 2:3
 			// Must add horizontally
 
-			newWidth = Math.round(d.height * limit);
+			newWidth = Math.ceil(d.height * limit);
 			System.out.println("want new width 1");
-		} else if (limit > 1 && getRatioFromDimension(d) > limit) {
+		} else if (limit > 1 && imageRatio > limit) {
 			// laid ratio, e.g. 3:2
 			// must add vertically
-			newHeight = Math.round(d.width * (1.0 / limit));
+			newHeight = Math.ceil(d.width * (1.0 / limit));
 			System.out.println("want new height 1");
-		} else if (limit == 1 && getRatioFromDimension(d) != 1) {
+		} else if (limit == 1 && imageRatio != 1) {
 			System.out.println("square ratio, make shortest side same as longest side");
 			if (d.width > d.height) {
 				newHeight = d.getWidth();
