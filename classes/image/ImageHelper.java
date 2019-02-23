@@ -1,9 +1,14 @@
 package image;
 
+import java.awt.AlphaComposite;
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsDevice.WindowTranslucency;
+import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -230,7 +235,7 @@ public class ImageHelper {
 
 		// List<ImageWithRatio> foundImages = new ArrayList<ImageWithRatio>();
 		boolean doAgain = checkBothOrientation;
-		int doneCount = 0;
+		int doneCount = 0;//for each axis checked (can be max 2)
 		double ratioLimitKvot = 0;// can be switched(?)
 		int errorCount = 0;
 
@@ -267,10 +272,10 @@ public class ImageHelper {
 
 			ratioLimitKvot = ratioX / ratioY;
 			System.out.println("ratioLimit: " + ratioLimitKvot);
-			int counter = 0;
+			int counter = 0;//for each image
 			// Go through the dimensions
 			for (Dimension d : dimensions) {
-				if (d != null) { //TODO: exclude that image from any further handling
+				if (d != null) { //TODO: exclude that 'image' from any further handling
 					// break;//TODO: show messsage
 					System.out.println("Using dimension: " + d);
 					/*
@@ -320,9 +325,7 @@ public class ImageHelper {
 						}
 						// return true;
 					} else if (foundOrient == ImageOrientation.square) {
-						if (d == null) {
 
-						}
 						if (d.height != d.width) {
 							foundOffSizes.add(ImageOrientation.square);
 							foundOffSized.add(imgFiles.get(counter));
@@ -332,24 +335,26 @@ public class ImageHelper {
 					} else {
 						System.out.println(imgFiles.get(counter).getName() + "\t" + foundRatio);
 					}
+
+
 					counter++;
 
-				// foundImages.clear();
 
-				doneCount++;
-				// switch x:y to be able to check opposite dimension
-				double temp = ratioX;
-				ratioX = ratioY;
-				ratioY = temp;
+					// switch x:y to be able to check opposite dimension
+					double temp = ratioX;
+					ratioX = ratioY;
+					ratioY = temp;
 
-				System.out.println("Har bytt plats...");
+					System.out.println("Har bytt plats...");
 
-				System.out.println("-------------------one lap------------------- " + doneCount);
+					System.out.println("-------------------one lap------------------- " + doneCount);
 				}
 				else {
 					errorReport.append(imgFiles.get(counter).getName() + " - fel! ");
 				}
 			}
+			doneCount++;
+			System.out.println("doAgain: " + doAgain + ", doneCount: " + doneCount);
 
 		} while (doAgain && doneCount < 2);
 		System.out.println(foundOffSizes.size());
@@ -611,9 +616,44 @@ public class ImageHelper {
 		BufferedImage copy = new BufferedImage(f.getWidth(), f.getHeight(), BufferedImage.TYPE_INT_RGB);
 		Graphics2D g2 = (Graphics2D) copy.getGraphics();
 		g2.setColor(_settings.getBackgroundColor());
+		
+		
+        // Determine if the GraphicsDevice supports translucency.
+        GraphicsEnvironment ge =
+            GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gd = ge.getDefaultScreenDevice();
+
+        //If translucent windows aren't supported, exit.
+        if (!gd.isWindowTranslucencySupported(java.awt.GraphicsDevice.WindowTranslucency.TRANSLUCENT)) {
+            System.err.println(
+                "Translucency is not supported");
+                //System.exit(0);
+        }
+        else {
+        	System.out.println("Translucency is supported");
+        }
+		
 		// g2.setColor(getColorOfEdge1(i.image)); //use it to pick color from image
+		//test av function
+		Color bg1 = getColorOfEdge1(i.image);
+		System.out.println("Got background color, " + bg1 + ", alpha " + bg1.getAlpha());
+		
 		g2.fillRect(0, 0, f.getWidth(), f.getHeight());
-		g2.drawImage(i.image, startX, startY, null);
+		
+		
+		if(bg1.getAlpha() == 0) {//TODO: get a transparent bg on new image
+			//completely transparent
+			System.out.println("Background is transparent!!!!!!!!!!!!!!!");
+			g2.setColor(bg1);
+			int rule = AlphaComposite.SRC_OVER;
+			Composite comp = AlphaComposite.getInstance(rule , 1);//test med 0.5 för transparens
+			g2.setComposite(comp);
+			g2.drawImage(i.image, startX, startY, null);
+		}
+		else {
+			g2.drawImage(i.image, startX, startY, null);
+		}
+
 
 		String newName = i.getName();
 		String lastExt = getFileExtensionName(i.getName()); // if filesystem with no filename ext is to be targeted, use
@@ -759,9 +799,11 @@ public class ImageHelper {
 	 * @return
 	 */
 	static int[] getEdgePixels(BufferedImage img) {
-		System.out.println("getEdgePixels med img " + img);
+		System.out.println("getEdgePixels med img " + img + ", " + img.isAlphaPremultiplied());
 		int width = img.getWidth();
 		int height = img.getHeight();
+		boolean hasAlpha = img.getAlphaRaster() != null;//TODO: make faster
+		
 		System.out.println("width " + width + " height " + height);
 
 		int edgeLength = width * 2 + height * 2 - 4;
@@ -769,17 +811,18 @@ public class ImageHelper {
 		int[] edge = new int[edgeLength];
 		// top
 
-		int strideBase = (width - 1) * 3;
-		int rem = 4 - (strideBase % 4);
-
-		int stride = strideBase + rem;
+		//int strideBase = (width - 1) * 3;
+		//int rem = 4 - (strideBase % 4);
+		//int stride = strideBase + rem;
 
 		// img.getRGB(0, 0, width-1, 1, edge, 0, stride);
 		int x, y, count = 0;
 
-		for (x = 0; x < width - 1; x++, count++) {
-			edge[count] = img.getRGB(x, 0);// top
-			System.out.print(edge[count] + " ");
+		for (x = 0; x < width-1; x++, count++) {
+			int pix = img.getRGB(x, 0);
+			Color mycolor = new Color(pix, hasAlpha);
+			edge[count] = pix;// top
+			System.out.print(mycolor + " " + mycolor.getAlpha() + " ");
 		}
 
 		for (y = 0; y < height - 1; y++, count++) {// right
@@ -798,9 +841,13 @@ public class ImageHelper {
 	}
 
 	static Color getColorOfEdge1(BufferedImage i) {
+		System.out.println("getColorOfEdge1");
+		
+		boolean hasAlpha = i.getAlphaRaster() != null;//TODO: make faster
 		int[] edge = getEdgePixels(i);
 		int firstPixel = edge[0];
-		Color found = new Color(firstPixel);
+		Color found = new Color(firstPixel, hasAlpha);
+		System.out.println("firstPixel: " + found);
 		return found;
 	}
 
