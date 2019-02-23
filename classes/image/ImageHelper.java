@@ -612,10 +612,7 @@ public class ImageHelper {
 		f.add(p);
 		// f.show(); //fungerar
 
-		// save new image with new dimensions
-		BufferedImage copy = new BufferedImage(f.getWidth(), f.getHeight(), BufferedImage.TYPE_INT_RGB);
-		Graphics2D g2 = (Graphics2D) copy.getGraphics();
-		g2.setColor(_settings.getBackgroundColor());
+
 		
 		
         // Determine if the GraphicsDevice supports translucency.
@@ -638,21 +635,35 @@ public class ImageHelper {
 		Color bg1 = getColorOfEdge1(i.image);
 		System.out.println("Got background color, " + bg1 + ", alpha " + bg1.getAlpha());
 		
-		g2.fillRect(0, 0, f.getWidth(), f.getHeight());
+
+		
+		
+		// save new image with new dimensions
+		BufferedImage copy;
+		Graphics2D g2;
 		
 		
 		if(bg1.getAlpha() == 0) {//TODO: get a transparent bg on new image
 			//completely transparent
+			copy = new BufferedImage(f.getWidth(), f.getHeight(), BufferedImage.TYPE_INT_ARGB);//TYPE_INT_RGB
+			g2 = copy.createGraphics();//(Graphics2D) copy.getGraphics();
 			System.out.println("Background is transparent!!!!!!!!!!!!!!!");
 			g2.setColor(bg1);
-			int rule = AlphaComposite.SRC_OVER;
-			Composite comp = AlphaComposite.getInstance(rule , 1);//test med 0.5 för transparens
-			g2.setComposite(comp);
-			g2.drawImage(i.image, startX, startY, null);
+			
+			
+			
+			//int rule = AlphaComposite.; //tested XOR, SRC_OVER(transp foregr), SRC_OUT, SRC_IN, SRC_ATOP, DST_OVER, DST_OUT, DST_IN, DST_ATOP, DST, SRC, SRC_OVER
+			//Composite comp = AlphaComposite.getInstance(rule , .5f);//test med 0.5 för transparens
+			//g2.setComposite(comp);
 		}
 		else {
-			g2.drawImage(i.image, startX, startY, null);
+			copy = new BufferedImage(f.getWidth(), f.getHeight(), BufferedImage.TYPE_INT_RGB);
+			g2 = copy.createGraphics();
+			g2.setColor(_settings.getBackgroundColor());
 		}
+		//Make a background color with the color set by g2.setColor()		
+		g2.fillRect(0, 0, f.getWidth(), f.getHeight());
+		g2.drawImage(i.image, startX, startY, null);
 
 
 		String newName = i.getName();

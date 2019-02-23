@@ -64,9 +64,7 @@ import settings.Settings;
 
 /*
  * Problems:
- * A png image with transparent background gets white background,
- * it should be same transparent color, as the original edge pixels
- * See ImageHelper.java row 615 (save2_NonStatic), g2.setColor(getColorOfEdge1(i.image));
+ * Only swedish lang.
  * 
  * Small prob.
  * After making a padded image, not replacing original, the original
