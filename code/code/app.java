@@ -65,6 +65,7 @@ import settings.Settings;
 /*
  * Problems:
  * Only swedish lang.
+ * Can't detect jpeg exif (if any) rotation
  * 
  * Small prob.
  * After making a padded image, not replacing original, the original
@@ -104,7 +105,7 @@ public class app extends JFrame implements ActionListener{
 	JPanel buttonPane;
 	JPanel pane;
 	
-	String infoText = "Hej, ovan är en lista på de bilder som äverskred den inställda ration, ";
+	String infoText = "Hej, ovan är en lista på de bilder som överskred den inställda ration, ";
 	String assureBothAxisInfoText;
 	
 	class MyDocumentListener implements DocumentListener {
@@ -126,7 +127,6 @@ public class app extends JFrame implements ActionListener{
 
 		public void updateLog(DocumentEvent e, String action) {
 			Document doc = (Document)e.getDocument();
-			int changeLength = e.getLength();
 			try {
 				System.out.println("updateLog med action " + action + ", doc " + doc.getProperty("name") + ", text length: " + doc.getLength() + " getText: " + doc.getText(0, doc.getLength()));
 			} catch (BadLocationException e1) {
@@ -517,7 +517,7 @@ public class app extends JFrame implements ActionListener{
 		if(anyErrors.length() > 0) {
 			errorMessage.setText(anyErrors.toString());
 			btn1.setEnabled(false);
-			btn1.setToolTipText("Åtgärda felen och sök igen");
+			btn1.setToolTipText("åtgärda felen och sök igen");
 		}
 		else {
 			btn1.setEnabled(true);

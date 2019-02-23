@@ -340,24 +340,26 @@ public class ImageHelper {
 					counter++;
 
 
-					// switch x:y to be able to check opposite dimension
-					double temp = ratioX;
-					ratioX = ratioY;
-					ratioY = temp;
 
-					System.out.println("Har bytt plats...");
 
-					System.out.println("-------------------one lap------------------- " + doneCount);
+					System.out.println("-------------------one image------------------- " + doneCount);
 				}
 				else {
 					errorReport.append(imgFiles.get(counter).getName() + " - fel! ");
 				}
 			}
+			// switch x:y to be able to check opposite dimension
+			double temp = ratioX;
+			ratioX = ratioY;
+			ratioY = temp;
+
+			System.out.println("Har bytt plats på axis");
+			
 			doneCount++;
 			System.out.println("doAgain: " + doAgain + ", doneCount: " + doneCount);
 
 		} while (doAgain && doneCount < 2);
-		System.out.println(foundOffSizes.size());
+		System.out.println("foundOffSizes.size: " + foundOffSizes.size());
 		// return false;
 		return foundOffSized;
 	}
