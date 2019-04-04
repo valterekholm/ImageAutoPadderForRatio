@@ -31,10 +31,13 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -48,6 +51,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListDataListener;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -65,11 +69,12 @@ import settings.Settings;
 /*
  * Problems:
  * Only swedish lang.
- * Can't detect jpeg exif (if any) rotation
+ * Can't detect exif in jpeg (if any) rotation
  * 
  * Small prob.
  * After making a padded image, not replacing original, the original
  * which had transparent background, got black background (men bara i Wind. (10) explorer)
+ * 
  * 
  * */
 
@@ -81,6 +86,8 @@ public class app extends JFrame implements ActionListener{
 		Graphics2D g2d = (Graphics2D) g;
 		
 	}*/
+	AppPhraseHandler phraseHandler;
+	
 	//members
 	JFrame f;
 	Settings settings;
@@ -104,8 +111,10 @@ public class app extends JFrame implements ActionListener{
 	JCheckBox assertBothAxis;
 	JPanel buttonPane;
 	JPanel pane;
+	JComboBox<String> languageChoice;
+	ComboBoxModel<String> languageChoiceModel;
 	
-	String infoText = "Hej, ovan är en lista på de bilder som överskred den inställda ration, ";
+	String infoText = "";//Hej, ovan är en lista på de bilder som överskred den inställda ration, 
 	String assureBothAxisInfoText;
 	
 	class MyDocumentListener implements DocumentListener {
@@ -240,6 +249,18 @@ public class app extends JFrame implements ActionListener{
 		app a = new app("ImageRatioPadder");
 		//Container c = a.getContentPane();
 		
+		AppLanguage myLanguage = new AppLanguage("Swedish", "sv");//Set by programmer, later user(?)
+		
+		phraseHandler = new AppPhraseHandler(myLanguage); //See AppLanguage.java for language codes
+		
+		phraseHandler.addPhrasesInMyLanguage(
+				myLanguage,
+				new String[] {"Following images were found exceeding ratio", "Expand", "Search again", "regardless of axis", " on the axis x:y", "Ratio", "Overwrite image files", "Apply ratio on both axis", "regardless of axis", "Will try to expand", "All images have been processed", "Nothing was processed", "No images found in folder", "address the issue and search again", "padding progressing", "Hi, above is a list of the images that exceeded the set ratio, ", "language"},
+				new String[] {"Följande bilder hittade som överskrider ratio", "Expandera", "Sök igen", "oavsett ledd.", " på ledden x:y", "Ratio", "Skriv över bilder", "Låt ratio gälla på båda ledder", "oavsett ledd.", "Ska försöka expandera", "Alla bilder har bearbetats", "Inget har bearbetats", "Inga bilder funna i mappen", "åtgärda felen och sök igen", "Utför padding", "Hej, ovan är en lista på de bilder som överskred den inställda ration, ", "språk"}
+				);
+		
+		infoText = phraseHandler.getPhraseInMyLanguageFromEnlishRefSearch("that exceeded").get_phrase();
+		
 		settings = new Settings();
 		imageHelper = new ImageHelper(settings);
 
@@ -256,7 +277,9 @@ public class app extends JFrame implements ActionListener{
 		
 		imageListModel = new DefaultListModel<File>();
 		
+		String[] languageItems = phraseHandler.getLanguageItems();
 		
+		languageChoiceModel = new DefaultComboBoxModel<String>(languageItems);
 		
 
 		//int maxY = image.getHeight();
@@ -267,11 +290,13 @@ public class app extends JFrame implements ActionListener{
 		listPane = new JPanel();
 		listPane.setLayout(new BoxLayout(listPane, BoxLayout.PAGE_AXIS));
 		
-		info1 = new JLabel("Följande bilder hittade som överskrider ratio");
+		info1 = new JLabel(phraseHandler.getPhraseInMyLanguageFromEnlishRefSearch("Following").get_phrase());//("Följande bilder hittade som överskrider ratio");
 		
-		btn1 = new JButton("Expand");
+		languageChoice = new JComboBox<String>(languageChoiceModel);
 		
-		btnSearch = new JButton("Sök igen");
+		btn1 = new JButton(phraseHandler.getPhraseInMyLanguageFromEnlishRefSearch("Expand").get_phrase());
+		
+		btnSearch = new JButton(phraseHandler.getPhraseInMyLanguageFromEnlishRefSearch("Search again").get_phrase());
 
 		imageFileList = new JList<File>(imageListModel);//images in folder that exceeds
 		
@@ -281,7 +306,7 @@ public class app extends JFrame implements ActionListener{
 		
 		listScrollPane = new JScrollPane(imageFileList);
 		
-		assureBothAxisInfoText = settings.isAssertBothAxis() ? " oavsett ledd." : " på ledden x:y";
+		assureBothAxisInfoText = settings.isAssertBothAxis() ? phraseHandler.getPhraseInMyLanguageFromEnlishRefSearch("regardless").get_phrase() : phraseHandler.getPhraseInMyLanguageFromEnlishRefSearch("on the axis").get_phrase();
 		
 		infoMessage = new JLabel("<html>" + infoText + settings.getRatioX() + " : " + settings.getRatioY() + "," + assureBothAxisInfoText + "</html>");
 		
@@ -289,9 +314,9 @@ public class app extends JFrame implements ActionListener{
 		errorMessage.setForeground(Color.red);
 		
 		
-		ratioXLbl = new JLabel("Ratio x: ");
+		ratioXLbl = new JLabel(phraseHandler.getPhraseInMyLanguageFromEnlishRefSearch("Ratio").get_phrase() + " x: ");
 		ratioX = new JTextField(5);
-		ratioYLbl = new JLabel("Ratio y: ");
+		ratioYLbl = new JLabel(phraseHandler.getPhraseInMyLanguageFromEnlishRefSearch("Ratio").get_phrase() + " y: ");
 		ratioY = new JTextField(5);
 		
 		ratioX.setText(String.format("%d", (int)settings.getRatioX()));
@@ -336,7 +361,7 @@ public class app extends JFrame implements ActionListener{
 		ratioRow.add(ratioY);
 		
 		
-		overwriteFiles = new JCheckBox("Skriv över bilder");
+		overwriteFiles = new JCheckBox(phraseHandler.getPhraseInMyLanguageFromEnlishRefSearch("Overwrite").get_phrase());
 		overwriteFiles.setSelected(settings.isReplaceOriginalImage());
 		//overwriteFiles.setAction(new CheckBoxAction());
 		overwriteFiles.addActionListener(new ActionListener() {
@@ -360,7 +385,7 @@ public class app extends JFrame implements ActionListener{
 			
 		});
 		
-		assertBothAxis = new JCheckBox("Låt ratio gälla på båda ledder");
+		assertBothAxis = new JCheckBox(phraseHandler.getPhraseInMyLanguageFromEnlishRefSearch("apply ratio").get_phrase());
 		assertBothAxis.setSelected(settings.isAssertBothAxis());
 		ratioRow.add(assertBothAxis);
 		
@@ -375,7 +400,7 @@ public class app extends JFrame implements ActionListener{
 						settings.setAssertBothAxis(false);
 					}
 					
-					assureBothAxisInfoText = settings.isAssertBothAxis() ? " oavsett ledd." : " på ledden x:y";
+					assureBothAxisInfoText = settings.isAssertBothAxis() ? phraseHandler.getPhraseInMyLanguageFromEnlishRefSearch("regardless").get_phrase() : phraseHandler.getPhraseInMyLanguageFromEnlishRefSearch("on the axis").get_phrase();//" oavsett ledd." : " på ledden x:y";
 				}
 				System.out.println(settings);
 			}
@@ -411,6 +436,7 @@ public class app extends JFrame implements ActionListener{
 		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
 		buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
 		buttonPane.add(Box.createHorizontalGlue());
+		buttonPane.add(languageChoice);
 		buttonPane.add(btnSearch);
 		buttonPane.add(btn1);
 		
@@ -433,7 +459,7 @@ public class app extends JFrame implements ActionListener{
 		btn1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("Clicked expand, will try expand the images");
-				infoMessage.setText("Ska försöka expandera");
+				infoMessage.setText(phraseHandler.getPhraseInMyLanguageFromEnlishRefSearch("Will try to expand").get_phrase());//"Ska försöka expandera");
 				//ImageHelper.save2(firstImg, 3, 4, true);
 				
 				List<Integer> imagesDone = new ArrayList<>();
@@ -461,10 +487,10 @@ public class app extends JFrame implements ActionListener{
 				}
 				if(imageListModel.isEmpty()) {
 					if(imagesDone.size()>0) {
-						infoMessage.setText("Alla bilder har bearbetats, " + imagesDone.size() + " st.");
+						infoMessage.setText(phraseHandler.getPhraseInMyLanguageFromEnlishRefSearch("have been processed").get_phrase() + ": " + imagesDone.size());
 					}
 					else {
-						infoMessage.setText("Inget har bearbetats");
+						infoMessage.setText(phraseHandler.getPhraseInMyLanguageFromEnlishRefSearch("Nothing was processed").get_phrase());
 					}
 				}
 			}
@@ -504,7 +530,7 @@ public class app extends JFrame implements ActionListener{
 			foundOffSized = imageHelper.listImagesAndRatiosAndIfExceedingRatioLimit_NonStatic(System.getProperty("user.dir"), settings.getRatioX(), settings.getRatioY(), settings.isAssertBothAxis(), anyErrors);//27:37 example
 		}
 		else {
-			infoMessage.setText("Inga bilder funna i mappen");
+			infoMessage.setText(phraseHandler.getPhraseInMyLanguageFromEnlishRefSearch("no images found").get_phrase());//Inga bilder funna i mappen
 		}
 		
 		if(foundOffSized.size() > 0) {
@@ -517,11 +543,11 @@ public class app extends JFrame implements ActionListener{
 		if(anyErrors.length() > 0) {
 			errorMessage.setText(anyErrors.toString());
 			btn1.setEnabled(false);
-			btn1.setToolTipText("åtgärda felen och sök igen");
+			btn1.setToolTipText(phraseHandler.getPhraseInMyLanguageFromEnlishRefSearch("address").get_phrase());//åtgärda felen och sök igen
 		}
 		else {
 			btn1.setEnabled(true);
-			btn1.setToolTipText("Utför padding");
+			btn1.setToolTipText(phraseHandler.getPhraseInMyLanguageFromEnlishRefSearch("padding progressing").get_phrase());//Utför padding
 		}
 	}
 

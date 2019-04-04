@@ -44,7 +44,8 @@ public class ImageHelper {
 	public static boolean hasFolderAnyPicture(File[] folderContent) {
 		long count = Arrays
 				.asList(folderContent).stream().filter(f -> f.getName().endsWith("png") || f.getName().endsWith("jpg")
-						|| f.getName().endsWith("gif") || f.getName().endsWith("tif") || f.getName().endsWith("bmp"))
+						|| f.getName().endsWith("gif") || f.getName().endsWith("tif") || f.getName().endsWith("bmp")
+						|| f.getName().endsWith("jpeg"))
 				.count();
 		System.out.println("img count: " + count);
 		return count > 0;
@@ -53,7 +54,8 @@ public class ImageHelper {
 	public boolean hasFolderAnyPicture_NonStatic(File[] folderContent) {
 		long count = Arrays
 				.asList(folderContent).stream().filter(f -> f.getName().endsWith("png") || f.getName().endsWith("jpg")
-						|| f.getName().endsWith("gif") || f.getName().endsWith("tif") || f.getName().endsWith("bmp"))
+						|| f.getName().endsWith("gif") || f.getName().endsWith("tif") || f.getName().endsWith("bmp")
+						|| f.getName().endsWith("jpeg"))
 				.count();
 		System.out.println("img count: " + count);
 		return count > 0;
@@ -66,7 +68,8 @@ public class ImageHelper {
 
 		List<File> images = Arrays
 				.asList(folderContent).stream().filter(f -> f.getName().endsWith("png") || f.getName().endsWith("jpg")
-						|| f.getName().endsWith("gif") || f.getName().endsWith("tif") || f.getName().endsWith("bmp"))
+						|| f.getName().endsWith("gif") || f.getName().endsWith("tif") || f.getName().endsWith("bmp")
+						|| f.getName().endsWith("jpeg"))
 				.collect(Collectors.toList());
 		// System.out.println("List size: " + images.size());
 		return images;
@@ -79,7 +82,8 @@ public class ImageHelper {
 
 		List<File> images = Arrays
 				.asList(folderContent).stream().filter(f -> f.getName().endsWith("png") || f.getName().endsWith("jpg")
-						|| f.getName().endsWith("gif") || f.getName().endsWith("tif") || f.getName().endsWith("bmp"))
+						|| f.getName().endsWith("gif") || f.getName().endsWith("tif") || f.getName().endsWith("bmp")
+						|| f.getName().endsWith("jpeg"))
 				.collect(Collectors.toList());
 		// System.out.println("List size: " + images.size());
 		return images;
