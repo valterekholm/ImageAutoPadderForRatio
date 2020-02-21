@@ -37,3 +37,6 @@ TwelveMonkeys :: ImageIO :: TIFF Plugin » 3.4.1
 https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-tiff/3.4.1
 
 (One can look there for how to write maven/other dependencies)
+
+See, below for an Maven version:
+https://github.com/valterekholm/mImgPadderForRatio
