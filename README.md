@@ -12,3 +12,28 @@ than that be padded, but in the second case - both axis - pictures being wider t
 Anyway, if you got ways too make the code look better, or increase speed, you can "connect" (or what it's called).
 
 The need for this program came with the use of a webshop that used to crop tall images (visually - not in bytes).
+
+The jars are:
+
+TwelveMonkeys :: Common :: Image » 3.2.1
+https://mvnrepository.com/artifact/com.twelvemonkeys.common/common-image/3.2.1
+
+TwelveMonkeys :: Common :: IO » 3.4.1
+https://mvnrepository.com/artifact/com.twelvemonkeys.common/common-io/3.4.1
+
+TwelveMonkeys :: Common :: Language Support » 3.4.1
+https://mvnrepository.com/artifact/com.twelvemonkeys.common/common-lang/3.4.1
+
+TwelveMonkeys :: ImageIO :: Core » 3.4.1
+https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-core/3.4.1
+
+TwelveMonkeys :: ImageIO :: JPEG Plugin » 3.4.1
+https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-jpeg/3.4.1
+
+TwelveMonkeys :: ImageIO :: Metadata » 3.4.1
+https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-metadata/3.4.1
+
+TwelveMonkeys :: ImageIO :: TIFF Plugin » 3.4.1
+https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-tiff/3.4.1
+
+(One can look there for how to write maven/other dependencies)
