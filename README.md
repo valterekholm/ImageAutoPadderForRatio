@@ -2,6 +2,7 @@
 A Java desktop app that adds padding to images to cut their ratio inside a chosen ratio.
 
 This program is made with Swing. It has a purpose of making pictures more square-like.
+Made with Eclipse - which offers easy way to export as a single runnable jar file.
 It offers a GUI, where users can set a ratio (x:y), choose if images should be overwritten, or new images be made, and...
 
 if the given ratio should be applied in one or two axis.
@@ -40,3 +41,7 @@ https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-tiff/3.4.1
 
 See, below for an Maven version:
 https://github.com/valterekholm/mImgPadderForRatio
+
+Issues (found|descr|status):
+
+2020-02-22 | Program recognize file-ending .jpg but don't recognies .jpeg (tested in Ubuntu) | not solved
