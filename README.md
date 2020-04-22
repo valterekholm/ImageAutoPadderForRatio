@@ -45,3 +45,5 @@ https://github.com/valterekholm/mImgPadderForRatio
 Issues (found|descr|status):
 
 2020-02-22 | Program recognize file-ending .jpg but don't recognies .jpeg (tested in Ubuntu) | not solved
+
+2020-04-22 | Program only looks for images in Home/User folder (tested in Linux Mint), it should be in the programs' folder | not solved
